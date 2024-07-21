@@ -1,0 +1,17 @@
+﻿@model int
+<div style="display: flex;">
+    <div>
+        <span style="font-size:15px;display: flex;">
+            @for (int i = 1; i <= 5; i++)
+            {
+                if (i <= Model)
+                {
+                    <span style="font-family: FontAwesome;color:#ffd800">★</span>
+                }
+                else
+                {
+                    <span style="font-family: FontAwesome;color:#BEC3C7">★</span>
+                }
+            }
+        </span>
+</div>

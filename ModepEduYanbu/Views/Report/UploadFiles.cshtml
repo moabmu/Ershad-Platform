@@ -1,0 +1,315 @@
+﻿@{
+    ViewData["Title"] = "رفع شواهد التنفيذ";
+}
+
+<h3>@ViewData["Title"]</h3>
+<p class="text small">
+    الرجاء اختيار الملفات التي ترغب بإرفاقها بالتقرير ثم الضغط على زر الرفع.
+    <br />
+    الملفات المرفوعة لا يمكن حذفها وستظل مرتبطة بالتقرير، لذلك يرجى التأكد من الملفات قبل النقر على زر الرفع.
+    <br />
+    الحجم الأقصى للملف الواحد هو 25 ميغابايت. الملفات المقبولة هي الصور، المستندات، ومقاطع الفيديو.
+    <br />
+    عند الضغط على زر الرفع يرجى الانتظار إلى أن تتم العملية وتظهر رسالة بنجاح العملية وعدد الملفات المرفوعة.
+    <span>
+        لمشاهدة التقرير <a asp-controller="Report" asp-action="Show" asp-route-reportno="@ViewData["ReportNo"].ToString()">انقر هنا.</a>
+    </span>
+</p>
+
+<label class="btn btn-default">
+    <input type="file" id="file" multiple />
+</label>
+<br />
+<button class="btn btn-default" style="margin-top:4px; margin-bottom: 4px;">رفع شواهد التنفيذ</button>
+
+<div class="progress">
+    <div id="progressBar"
+         class="progress-bar progress-bar-striped"
+         role="progressbar"
+         aria-valuenow="0"
+         aria-valuemin="0"
+         aria-valuemax="100"
+         style="width: 0%">
+        <span id="ProgressLabel"></span>
+    </div>
+</div>
+<div id="Results" class="alert alert-success" style="margin-top:1px; visibility: hidden;">
+</div>
+
+@section Scripts{
+    <style>
+        .notransition {
+            -webkit-transition: none !important;
+            -moz-transition: none !important;
+            -o-transition: none !important;
+            -ms-transition: none !important;
+            transition: none !important;
+        }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script>
+        var uploadedCount = 0;
+        var files = document.getElementById("file").files; //.files[0];
+        var results = $("#Results");
+        var progressBar = $("#progressBar");
+        //progressBar.removeClass("notransition");
+
+        function uploadFile(i) {
+            if (files == null || files.length < 1) {
+                $("button").prop("disabled", false);
+                return;
+            }
+
+            if (i != 0) {
+                var formData = new FormData();
+                formData.append("files", files[i]);
+                formData.append("no", "@(ViewData["ReportNo"])");
+                //progressBar.removeClass("notransition");
+
+                $.ajax({
+                    url: "/Report/UploadFile",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    type: "POST",
+                    xhr: function () {
+                        $("#ProgressLabel").text("جاري رفع: " + files[i].name);
+                        var xhr = new window.XMLHttpRequest();
+                        xhr.upload.addEventListener("progress", function (evt) {
+                            if (evt.lengthComputable) {
+                                var progress = Math.round((evt.loaded / evt.total) * 100);
+                                progressBar.attr("aria-valuenow", progress + '%').css("width", progress + '%');
+                            }
+                        }, false);
+                        return xhr;
+                    },
+                    success: function (data) {
+                        if (data.code == 2) {
+                            uploadedCount++;
+                        }
+                    },
+                    complete: function (data) {
+                        progressBar.addClass("notransition");
+                        setTimeout(function () {
+                            $("#ProgressLabel").text("");
+                            progressBar.css('width', '0%').attr('aria-valuenow', 0);
+                        }, 3000);
+                        $("#ProgressLabel").text("تم رفع الملف " + files[i].name);
+                        progressBar.css('width', '0%').attr('aria-valuenow', 0);
+                        uploadFile(i - 1);
+                    }
+                });
+
+            }
+            else {
+                var formData = new FormData();
+                formData.append("files", files[i]);
+                formData.append("no", "@(ViewData["ReportNo"])");
+
+                $.ajax({
+                    url: "/Report/UploadFile",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    type: "POST",
+                    xhr: function () {
+                        $("#ProgressLabel").text("جاري رفع: " + files[i].name);
+                        var xhr = new window.XMLHttpRequest();
+                        xhr.upload.addEventListener("progress", function (evt) {
+                            if (evt.lengthComputable) {
+                                var progress = Math.round((evt.loaded / evt.total) * 100);
+                                progressBar.attr("aria-valuenow", progress + '%').css("width", progress + '%');
+                            }
+                        }, false);
+                        return xhr;
+                    },
+                    success: function (data) {
+                        if (data.code == 2) {
+                            uploadedCount++;
+                        }
+                    },
+                    complete: function (data) {
+                        if (uploadedCount == files.length) {
+                            var successMsg = "تم رفع الملفات بنجاح. إجمالي الملفات المرفوعة " + uploadedCount + " من أصل " + files.length + " ملف/ملفات." + "لمشاهدة التقرير <a href=\"https://moeduyanbu.com/report/show?reportNo=" + "@(ViewData["ReportNo"])" + "\">انقر هنا.<a>";
+                            results.html(successMsg);
+                            results.removeClass("alert alert-danger");
+                            results.removeClass("alert alert-warning");
+                            results.addClass("alert alert-success");
+                            results.css("visibility", "visible");
+                            progressBar.removeClass("progress-bar-animated active");
+                        }
+                        else if (uploadedCount == 0) {
+                            results.html("فشلت عملية رفع الملفات. تأكد من امتلاكك لصلاحية الوصول لهذا المصدر ومن أحجام وأنواع الملفات المرفوعة.");
+                            results.removeClass("alert alert-success");
+                            results.removeClass("alert alert-warning");
+                            results.addClass("alert alert-danger");
+                            results.css("visibility", "visible");
+                            progressBar.removeClass("progress-bar-animated active");
+                        }
+                        else {
+                            var errorMsg = "فشلت عملية الرفع لبعض الملفات. إجمالي الملفات المرفوعة " + uploadedCount + " من أصل " + files.length + " ملف/ملفات. " + "لمشاهدة التقرير " + "<a href='https://moeduyanbu.com/report/show?reportNo=" + "@(ViewData["ReportNo"])" + "'>" + "انقر هنا." + "</a>" + "الرجاء معاودة رفع الملفات التي لم ترفق بالتقرير " + "<a href=\"javascript: window.location.href = window.location.href\">" + "بعد تحديث هذه الصفحة." + "</a>";
+                            results.html(errorMsg);
+                            results.removeClass("alert alert-danger");
+                            results.removeClass("alert alert-success");
+                            results.addClass("alert alert-warning");
+                            results.css("visibility", "visible");
+                            progressBar.removeClass("progress-bar-animated active");
+                        }
+
+                        uploadedCount = 0;
+                        files = null;
+                        $("button").prop("disabled", false);
+
+                        setTimeout(function () {
+                            $("#ProgressLabel").text("");
+                            progressBar.css('width', '0%').attr('aria-valuenow', 0);
+                        }, 3000);
+                    }
+                });
+            }
+        }
+
+        $("button").click(function () {
+            $("button").prop("disabled", true);
+            uploadedCount = 0;
+            files = document.getElementById("file").files;
+            results.css("visibility", "hidden");
+
+            uploadFile(files.length - 1);
+        });
+    </script>
+
+
+    @*<script>
+            var uploadedCount = 0;
+            var files = document.getElementById("file").files; //.files[0];
+            var results = $("#Results");
+            var progressBar = $("#progressBar");
+            //progressBar.removeClass("notransition");
+
+            function uploadFile(i) {
+                if (files == null || files.length < 1) {
+                    $("button").prop("disabled", false);
+                    return;
+                }
+
+                if (i != 0) {
+                    var formData = new FormData();
+                    formData.append("files", files[i]);
+                    formData.append("no", "@(ViewData["ReportNo"])");
+                    //progressBar.removeClass("notransition");
+
+                    $.ajax({
+                        url: "/Report/UploadFile",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        type: "POST",
+                        xhr: function () {
+                            $("#ProgressLabel").text("جاري رفع: " + files[i].name);
+                            var xhr = new window.XMLHttpRequest();
+                            xhr.upload.addEventListener("progress", function (evt) {
+                                if (evt.lengthComputable) {
+                                    var progress = Math.round((evt.loaded / evt.total) * 100);
+                                    progressBar.attr("aria-valuenow", progress + '%').css("width", progress + '%');
+                                }
+                            }, false);
+                            return xhr;
+                        },
+                        success: function (data) {
+                            if (data.code == 2) {
+                                uploadedCount++;
+                            }
+                        },
+                        complete: function (data) {
+                            progressBar.addClass("notransition");
+                            setTimeout(function () {
+                                $("#ProgressLabel").text("");
+                                progressBar.css('width', '0%').attr('aria-valuenow', 0);
+                            }, 3000);
+                            $("#ProgressLabel").text("تم الرفع وجاري التهيئة للملف " + files[i].name);
+                            progressBar.css('width', '0%').attr('aria-valuenow', 0);
+                            uploadFile(i - 1);
+                        }
+                    });
+
+                }
+                else {
+                    var formData = new FormData();
+                    formData.append("files", files[i]);
+                    formData.append("no", "@(ViewData["ReportNo"])");
+
+                    $.ajax({
+                        url: "/Report/UploadFile",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        type: "POST",
+                        xhr: function () {
+                            $("#ProgressLabel").text("جاري رفع: " + files[i].name);
+                            var xhr = new window.XMLHttpRequest();
+                            xhr.upload.addEventListener("progress", function (evt) {
+                                if (evt.lengthComputable) {
+                                    var progress = Math.round((evt.loaded / evt.total) * 100);
+                                    progressBar.attr("aria-valuenow", progress + '%').css("width", progress + '%');
+                                }
+                            }, false);
+                            return xhr;
+                        },
+                        success: function (data) {
+                            if (data.code == 2) {
+                                uploadedCount++;
+                            }
+                        },
+                        complete: function (data) {
+                            if (uploadedCount == files.length) {
+                                var msg = "تم رفع الملفات بنجاح." + "إجمالي الملفات المرفوعة هو " + uploadedCount + " من أصل " + files.length + " ملف/ملفات";
+                                results.html(msg);
+                                results.removeClass("alert alert-danger");
+                                results.removeClass("alert alert-warning");
+                                results.addClass("alert alert-success");
+                                results.css("visibility", "visible");
+                                progressBar.removeClass("progress-bar-animated active");
+                            }
+                            else if (uploadedCount == 0) {
+                                var msg = "فشلت عملية رفع الملفات. تأكد من امتلاكك لصلاحية الوصول لهذا المصدر ومن أحجام وأنواع الملفات.";
+                                results.html(msg);
+                                results.removeClass("alert alert-success");
+                                results.removeClass("alert alert-warning");
+                                results.addClass("alert alert-danger");
+                                results.css("visibility", "visible");
+                                progressBar.removeClass("progress-bar-animated active");
+                            } else {
+                                var msg = "فشل رفع بعض الملفات. " + "إجمالي الملفات المرفوعة هو " + uploadedCount + " من أصل " + files.length + " ملف/ملفات";
+                                results.html(msg);
+                                results.removeClass("alert alert-danger");
+                                results.removeClass("alert alert-success");
+                                results.addClass("alert alert-warning");
+                                results.css("visibility", "visible");
+                                progressBar.removeClass("progress-bar-animated active");
+                            }
+
+                            uploadedCount = 0;
+                            files = null;
+                            $("button").prop("disabled", false);
+
+                            setTimeout(function () {
+                                $("#ProgressLabel").text("");
+                                progressBar.css('width', '0%').attr('aria-valuenow', 0);
+                            }, 3000);
+                        }
+                    });
+                }
+            }
+
+            $("button").click(function () {
+                $("button").prop("disabled", true);
+                loader.show();
+                uploadedCount = 0;
+                files = document.getElementById("file").files;
+
+                uploadFile(files.length - 1);
+            });
+        </script>*@
+}

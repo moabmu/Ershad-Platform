@@ -1,0 +1,77 @@
+﻿@model IndexViewModel
+@{
+    ViewData["Title"] = "أدر حسابك";
+}
+
+<h2>@ViewData["Title"].</h2>
+<p class="text-success">@ViewData["StatusMessage"]</p>
+
+<div>
+    <h4>تغيير إعدادات حسابك</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>كلمة المرور:</dt>
+        <dd>
+            @if (Model.HasPassword)
+            {
+                <a asp-controller="Manage" asp-action="ChangePassword" class="btn-bracketed">تغيير</a>
+            }
+            else
+            {
+                <a asp-controller="Manage" asp-action="SetPassword" class="btn-bracketed">إنشاء</a>
+            }
+        </dd>
+        @*<dt>External Logins:</dt>
+            <dd>
+
+                @Model.Logins.Count <a asp-controller="Manage" asp-action="ManageLogins" class="btn-bracketed">Manage</a>
+            </dd>*@
+        <dt>رقم الجوال:</dt>
+        <dd>
+            <p>
+                @*Phone Numbers can be used as a second factor of verification in two-factor authentication.
+                    See <a href="https://go.microsoft.com/fwlink/?LinkID=532713">this article</a>
+                    for details on setting up this ASP.NET application to support two-factor authentication using SMS.*@
+                يمكنك استخدام رقم الجوال في ميزة المصادقة عبر الرسائل النصية واستلام الإشعارات من الموقع.
+            </p>
+            @(Model.PhoneNumber ?? "لا يوجد رقم جوال.")
+            @if (Model.PhoneNumber != null)
+            {
+                <br />
+                <div style="display: flex;">
+                    <div>
+                        <a asp-controller="Manage" asp-action="AddPhoneNumber" class="btn-bracketed">تغيير</a>
+                    </div>
+                    <div>
+                        <form asp-controller="Manage" asp-action="RemovePhoneNumber" method="post">
+                            <button type="submit" class="btn-link btn-bracketed">حذف</button>
+                        </form>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <a asp-controller="Manage" asp-action="AddPhoneNumber" class="btn-bracketed">إضافة</a>
+            }
+        </dd>
+
+        @*<dt>المصادقة المزدوجة:</dt>
+        <dd>
+            <p>
+                تمكنك هذه الميزة من الدخول إلى حسابك بعد إدخال رقم التحقق المرسل إلى  جوالك.
+            </p>
+            @if (Model.TwoFactor)
+            {
+                <form asp-controller="Manage" asp-action="DisableTwoFactorAuthentication" method="post" class="form-horizontal">
+                    مفعلة <button type="submit" class="btn-link btn-bracketed">تعطيل</button>
+                </form>
+            }
+            else
+            {
+                <form asp-controller="Manage" asp-action="EnableTwoFactorAuthentication" method="post" class="form-horizontal">
+                    <button type="submit" class="btn-link btn-bracketed">تفعيل</button> معطلة
+                </form>
+            }
+        </dd>*@
+    </dl>
+</div>

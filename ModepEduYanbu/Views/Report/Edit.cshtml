@@ -1,0 +1,128 @@
+﻿@model ModepEduYanbu.Models.ReportViewModel.AddReportViewModel
+@{
+    ViewData["Title"] = "تعديل تقرير";
+}
+@{
+    EduProgram program = (EduProgram)ViewData["EduProgram"];
+}
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <h2>@($"{ViewData["Title"]} لبرنامج {program.Name}") - رقم التقرير: @ViewData["ReportNo"].ToString()</h2>
+        <form asp-controller="Report" asp-action="Edit"
+              asp-route-no="@(ViewData["ReportNo"])"
+              method="post"
+              class="form-horizontal">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            @{
+        if (this.ViewBag.UserMessage != null)
+        {
+            if (ViewBag.UserMessage.ToString() == "حدث خطأ، يرجى المحاولة مرة أخرى.")
+            {
+                <div class="alert alert-danger" style="margin-top:10px;">@ViewBag.UserMessage.ToString()</div>
+    }
+    else
+    {
+        <div class="alert alert-success" style="margin-top:10px;">
+            @ViewBag.UserMessage.ToString() لمشاهدة التقرير <a asp-controller="Report" asp-action="Show" asp-route-reportno="@ViewData["ReportNo"].ToString()">انقر هنا.</a>
+        </div>
+}
+}
+            }
+
+            @if (program.DescriptionFile != null)
+    {
+        <div class="text-muted">
+            للمزيد عن البرنامج يرجى
+            <a target="_blank" href="@(program.DescriptionFile.Uri)">النقر هنا.</a>
+        </div>
+}
+
+            <div class="form-group" style="margin-top: 10px;">
+                <label asp-for="TargetedSlice" class="col-md-4 control-label"></label>
+                <div class="col-md-8">
+                    <input asp-for="TargetedSlice" class="form-control" />
+                    <span asp-validation-for="TargetedSlice" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="TargetedCount" class="col-md-4 control-label"></label>
+                <div class="col-md-8">
+                    <input asp-for="TargetedCount" class="form-control" />
+                    <span asp-validation-for="TargetedCount" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="Field" class="col-md-4 control-label"></label>
+                <div class="col-md-8">
+                    <input asp-for="Field" class="form-control" />
+                    <span asp-validation-for="Field" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="ExecutionDate" class="col-md-4 control-label"></label>
+                <div class="col-md-8">
+                    <input asp-for="ExecutionDate" class="form-control" placeholder="مثال: 25/5/1440" />
+                    <span asp-validation-for="ExecutionDate" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="ExecutionPeriod" class="col-md-4 control-label"></label>
+                <div class="col-md-8">
+                    <input asp-for="ExecutionPeriod" class="form-control" />
+                    <span asp-validation-for="ExecutionPeriod" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="ExecutionData" class="col-md-4 control-label"></label>
+                <div class="col-md-8">
+                    <textarea cols="60" rows="6" asp-for="ExecutionData" class="form-control"></textarea>
+                    <span asp-validation-for="ExecutionData" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="ParticipantsRatio" class="col-md-4 control-label"></label>
+                <div class="col-md-8">
+                    <input asp-for="ParticipantsRatio" class="form-control" />
+                    <span asp-validation-for="ParticipantsRatio" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="ChallengesSolus" class="col-md-4 control-label"></label>
+                <div class="col-md-8">
+                    <input asp-for="ChallengesSolus" class="form-control" />
+                    <span asp-validation-for="ChallengesSolus" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="ProceduresCount" class="col-md-4 control-label"></label>
+                <div class="col-md-8">
+                    <input asp-for="ProceduresCount" class="form-control" />
+                    <span asp-validation-for="ProceduresCount" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="ProceduresSuggestions" class="col-md-4 control-label"></label>
+                <div class="col-md-8">
+                    <input asp-for="ProceduresSuggestions" class="form-control" />
+                    <span asp-validation-for="ProceduresSuggestions" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="UploadsLink" class="col-md-4 control-label"></label>
+                <div class="col-md-8">
+                    <input asp-for="UploadsLink" class="form-control" />
+                    <span asp-validation-for="UploadsLink" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-default">إلغاء</a>
+                <a asp-controller="Report" asp-action="UploadFiles" asp-route-no="@(ViewData["ReportNo"])" class="btn btn-default">إضافة شواهد التنفيذ</a>
+                <input type="submit" value="تعديل التقرير" class="btn btn-success" />
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

@@ -1,0 +1,24 @@
+﻿@{
+    ViewData["Title"] = "AddSchoolLevels";
+}
+
+<div class="container-fluid">
+    <h2>@ViewData["Title"]</h2>
+    <form method="post" enctype="multipart/form-data" asp-controller="Test15"
+          asp-action="AddSchoolLevels">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <div class="col-md-10">
+                <p>رفع ملفات الإكسل لكشوفات المدارس وقادة المدارس:</p>
+                <label class="btn btn-default">
+                    استعراض الملفات على جهازك<input type="file" name="files" multiple hidden />
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-10" style="margin-top:3px;">
+                <input type="submit" value="رفع الملفات" class="btn btn-success" />
+            </div>
+        </div>
+    </form>
+</div>

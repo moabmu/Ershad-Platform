@@ -1,0 +1,109 @@
+﻿@addTagHelper *, Sakura.AspNetCore.Mvc.PagedList
+@model ModepEduYanbu.ViewModels.ViewModelsForPartialViews.PartialReportsViewerViewModel
+@if (Model.Reports == null || Model.Reports.TotalCount < 1)
+{
+    <span class="text-muted small">@Model.ErrorMessageWhenReportsNull</span>
+}
+else
+{
+    @if (Model.DisplayTotalCountOfReports)
+    {
+        <div>
+            <span>عدد النتائج: @Model.Reports.TotalCount</span>
+        </div>
+    }
+    <table id="@Model.HtmlId" class="table table-hover table-striped">
+        <thead>
+            <tr>
+                <th>
+                    رقم التقرير
+                </th>
+                <th>
+                    اسم البرنامج
+                </th>
+                <th>
+                    المدرسة
+                </th>
+                <th>
+                    المرسل
+                </th>
+                <th>
+                    اعتمده قائد المدرسة؟
+                </th>
+                <th>
+                    تقييم القسم
+                </th>
+                <th>
+                    تقييم الزوار
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Reports)
+            {
+                <tr>
+                    <td>
+                        <a target="_blank" asp-action="Show" asp-controller="Report" asp-route-reportno="@item.ReportNo">
+                            @Html.DisplayFor(modelItem => item.ReportNo)
+                        </a>
+                    </td>
+                    <td>
+                        <a target="_blank" asp-action="Show" asp-controller="Report" asp-route-reportno="@item.ReportNo">
+                            @Html.DisplayFor(modelItem => item.EduProgramName)
+                        </a>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SchoolName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.OwnerFullName)
+                    </td>
+                    <td>
+                        @(item.IsSignedByPrinciple ? "نعم" : "لا")
+                    </td>
+                    <td>
+                        @await Html.PartialAsync("_PartialEvaluationLabel", new ModepEduYanbu.ViewModels.ViewModelsForPartialViews.PartialEvaluationLabelViewModel
+                        {
+                           EvaluationValue = (item.IsEvaluated)? (decimal?)(item.Evaluation/10) : null,
+                           EvaluationBase = 10,
+                           DecimalsToRound = 2,
+                           DisplayGradeColor = true,
+                           DisplayGradeTitle = true,
+                           Suffix = " من 10",
+                           Message =(item.EvaluationDate.HasValue)? $"التقييم بتاريخ {@item.EvaluationDate.Value.ToShortDateString()}" : null
+                        })
+                    </td>
+                    <td>
+                        @if (item.VisitorRatingCount < 1)
+                        {
+                            <span class="text-muted small">بدون تفاعلات للزوار</span>
+                        }
+                        else
+                        {
+                            @* Show Rating Snipet*@
+                            @await Html.PartialAsync("_PartialStarsRatingWithCountLink", new ModepEduYanbu.ViewModels.ViewModelsForPartialViews.PartialStarsRatingWithCountLinkViewModel(
+                    item.VisitorOverallRating,
+                    item.VisitorRatingCount,
+                    nameof(ModepEduYanbu.Controllers.ReportController.Show),
+                    nameof(ModepEduYanbu.Controllers.ReportController).Replace("Controller", string.Empty),
+                    new Dictionary<string, string>
+                    {
+                               {"ReportNo", item.ReportNo }
+                    }
+                    ))
+                        }
+                    </td>
+                    <td>
+                        @if (Model.DisplayEditReportButton && !item.IsSignedByPrinciple)
+                        {
+                            <a asp-controller="Report" asp-action="Edit" asp-route-no="@item.ReportNo">تعديل التقرير</a>
+                        }
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <pager source="Model.Reports" />
+}

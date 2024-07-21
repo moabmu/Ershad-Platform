@@ -1,0 +1,29 @@
+﻿@model EvaluateViewModel
+
+@{
+    ViewData["Title"] = "تقييم تقرير";
+}
+
+<h3>تقييم التقرير رقم @Model.ReportNo</h3>
+
+<form asp-controller="Report" asp-action="Evaluate" method="post">
+    <div class="form-horizontal">
+        <input type="hidden" asp-for="ReportNo" />
+        <div class="form-group">
+            <label asp-for="Evaluation" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Evaluation" class="form-control" />
+                <span asp-validation-for="Evaluation" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="حفظ التقييم" class="btn btn-success" />
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

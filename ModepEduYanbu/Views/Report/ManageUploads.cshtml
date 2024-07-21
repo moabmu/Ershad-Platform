@@ -1,0 +1,42 @@
+﻿
+@{
+    ViewData["Title"] = "ManageUploads";
+}
+
+<h2>شواهد التنفيذ للتقرير رقم @ViewData["ReportNo"]</h2>
+<p>عدد الشواهد المرفقة بالتقرير: @ViewData["FilesCount"]</p>
+
+<h3>تحميل الشواهد</h3>
+<div ng-app="uploadApp">
+    <div ng-controller="uploadController">
+        <ul>
+            <li id="errorMessages" class="error" data-ng-repeat="e in errors">
+                {{e}}
+            </li>
+        </ul>
+        <div>
+            <label>الملف</label>
+            <div>
+                <input name="UploadedFile" type="file" />
+            </div>
+        </div>
+        <br />
+        <div>
+            <button class="btn btn-primary" ng-click="createUploadedFile()">تحميل الملف</button>
+        </div>
+        <br />
+        <div ng-show="showUploadStatus">
+            <b><span ng-bind="uploadStatus"></span></b>
+        </div>
+        <div ng-show="showUploadedData">
+            <b>اسم الملف:</b> <span ng-bind="uploadedData.filename"></span><br />
+            <b>الرابط:</b><span ng-bind="uploadedData.url"></span>
+        </div>
+    </div>
+</div>
+
+
+@section scripts{
+    <script src="~/lib/angular/angular.min.js"></script>
+    <script src="~/js/ManageReportUploads.js"></script>
+}

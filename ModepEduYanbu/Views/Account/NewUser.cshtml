@@ -1,0 +1,31 @@
+﻿@model NewUserViewModel
+@{
+    ViewData["Title"] = "تسجيل مستخدم جديد";
+}
+
+<h2>تسجيل مستخدم جديد</h2>
+
+<form asp-controller="Account" asp-action="NewUser" 
+      asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
+    <h4>الرجاء إدخال رقم الهوية.</h4>
+    <hr />
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="UserIdNo" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="UserIdNo" class="form-control" />
+            <span asp-validation-for="UserIdNo" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <button type="submit" class="btn btn-default">متابعة</button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}
+
+

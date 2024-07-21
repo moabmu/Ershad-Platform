@@ -1,0 +1,76 @@
+﻿@addTagHelper *, Sakura.AspNetCore.Mvc.PagedList
+@model Sakura.AspNetCore.IPagedList<RatedAndUnratedEduProgramsItemViewModel>
+@{
+    ViewData["Title"] = "قائمة البرامج الإرشادية المقيمة وغير المقيمة";
+}
+<h3>@ViewData["Title"]</h3>
+@if (Model == null || Model.TotalCount < 1)
+{
+    <span class="text-muted small">لا توجد نتائج.</span>
+}
+else
+{
+    <div>
+        <span>إجمالي البرامج: @Model.TotalCount</span>
+    </div>
+    <table class="table table-hover table-striped">
+        <thead>
+            <tr>
+                <th>
+                    اسم البرنامج
+                </th>
+                <th>
+                    الموعد النهائي لإرسال التقرير
+                </th>
+                <th>
+                    عدد التقارير المرسلة
+                </th>
+                <th>
+                    عدد التقارير المقيمة
+                </th>
+                <th>
+                    اكتمل تقييم التقارير المرسلة؟
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @item.ReportDeadline.ToString("dd/MM/yyyy")
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SentReportsCount)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.RatedReportsCount)
+                    </td>
+                    <td>
+                        @{
+                            var unratedReportsCount = item.SentReportsCount - item.RatedReportsCount;
+                        }
+                        @if (unratedReportsCount != 0)
+                        {
+                            <a target="_blank" asp-fragment="SentReports" asp-action="Index" asp-controller="Dashboard" asp-all-route-data="item.RouteDataForUnratedLink">
+                                <span class="text-danger" style="font-weight: bold;">لا، يتبقى @unratedReportsCount تقرير</span>
+                            </a>
+                        }
+                        else if (unratedReportsCount == 0 && item.SentReportsCount > 0)
+                        {
+                            <span class="text-success" style="font-weight: bold;">نعم</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted" style="font-weight: bold;">لا توجد تقارير مرسلة</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <pager source="Model" />
+}

@@ -1,0 +1,77 @@
+﻿@model ModepEduYanbu.Models.EduProgramViewModels.EduProgramViewModel
+@{
+    ViewData["Title"] = "تعديل برنامج إرشادي";
+}
+
+<form asp-action="Edit" enctype="multipart/form-data" method="post" asp-route-no="@(ViewData["EduProgramNo"])">
+    <div class="form-horizontal">
+        <h4>تعديل البرنامج: @ViewData["EduProgramName"]</h4>
+        <hr />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        @if (ViewBag.UserMessage != null)
+        {
+            @*<div>@ViewBag.UserMessage</div>*@
+            <div class="alert alert-success" style="margin-top:10px;">@ViewBag.UserMessage</div>
+        }
+        <div class="form-group">
+            <label asp-for="Name" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+        </div>
+        @*<div class="form-group">
+            <label class="col-md-2 control-label"></label>
+            <div>
+                <select asp-for="SelectedSchool" asp-items="Model.Schools" multiple class="selectpicker"></select>
+            </div>
+        </div>*@
+        <div class="form-group">
+            <label asp-for="BeginDate" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="BeginDate" class="form-control" placeholder="مثال: 25/5/41" />
+                <span asp-validation-for="BeginDate" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="EndDate" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="EndDate" class="form-control" placeholder="مثال: 25/5/41" />
+                <span asp-validation-for="EndDate" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="ReportDeadline" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ReportDeadline" class="form-control" placeholder="مثال: 25/5/41" />
+                <span asp-validation-for="ReportDeadline" class="text-danger"></span>
+            </div>
+        </div>
+        @{EduProgramUploadedFile descFile = ViewData["DescFile"] as EduProgramUploadedFile; }
+        @if( descFile != null)
+        {
+            <a target="_blank" href="@(descFile.Uri)">الملف التوضيحي الحالي لخطة البرنامج</a>
+            <br />
+            <p>بإمكانك استبدال الخطة الحالية برفع خطة بديلة من خلال حقل الرفع أدناه. في حال الرغبة بالإبفاء على الملف الحالي دون تغيير يرجى ترك الخانة أدناه.</p>
+        }
+        <div class="form-group">
+            <label asp-for="DescriptionFile" class="control-label"></label>
+            <input asp-for="DescriptionFile" type="file" class="form-control" style="height:auto" />
+            <span asp-validation-for="DescriptionFile" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="تعديل البرنامج" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+</form>
+
+@*<div>
+        <a asp-action="Index">العودة للصفحة الرئيسية</a>
+    </div>*@
+
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

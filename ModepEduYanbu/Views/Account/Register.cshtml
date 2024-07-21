@@ -1,0 +1,92 @@
+﻿@model RegisterViewModel
+@inject ModepEduYanbu.Repositories.Interfaces.IAuthorizedPeopleRepo PeopleRepo
+@{
+    ViewData["Title"] = "تسجيل مستخدم جديد";
+}
+
+<h2>@ViewData["Title"].</h2>
+
+<form asp-controller="Account" asp-action="Register"
+      asp-route-returnurl="@ViewData["ReturnUrl"]"
+      asp-route-idno="@ViewData["IdNo"]"
+      asp-route-schoolslist="@ViewData["SchoolsList"]"
+      method="post" class="form-horizontal">
+    <h4>إنشاء حساب جديد</h4>
+    <hr />
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div>
+        <span>رقم الهوية: <span class="text-success">@ViewData["IdNo"]</span></span>
+        <br />
+        <span>رقم الهوية هو اسم المستخدم الخاص بك للدخول إلى النظام.</span>
+    </div>
+    <div class="form-group">
+        <label asp-for="FullName" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="FullName" class="form-control" />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
+    </div>
+
+    @if (PeopleRepo.IsEduDepEmployee(ViewData["IdNo"].ToString()))
+    {
+        <div class="form-group">
+            <label asp-for="PositionTitle" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="PositionTitle" class="form-control" />
+                <span asp-validation-for="PositionTitle" class="text-danger"></span>
+            </div>
+        </div>
+    }
+
+    <div class="form-group">
+        <label asp-for="Email" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="ConfirmEmail" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="ConfirmEmail" class="form-control" />
+            <span asp-validation-for="ConfirmEmail" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="Password" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="Password" class="form-control" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="ConfirmPassword" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="ConfirmPassword" class="form-control" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="PhoneNumber" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="PhoneNumber" class="form-control" placeholder="05xxxxxxxx" />
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="ConfirmPhoneNumber" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="ConfirmPhoneNumber" class="form-control" placeholder="05xxxxxxxx" />
+            <span asp-validation-for="ConfirmPhoneNumber" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <button type="submit" class="btn btn-default">تسجيل مستخدم جديد</button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

@@ -1,0 +1,15 @@
+﻿<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-1 col-md-offset-3">
+            <span class="small">التقديرات:</span>
+        </div>
+        @foreach (var grade in ModepEduYanbu.Data.Templates.KpiGradesForBootstrap)
+        {
+            <div class="col-md-1 col-sm-5">
+                <span class="small @grade.CssColor" style="font-weight: bold;">@grade.GradeTitle</span>
+                <br />
+                <span class="small @grade.CssColor">(@Math.Round(grade.HighestValue * 10, 0) - @Math.Round(grade.LowestValueInclusive * 10, 0))</span>
+            </div>
+        }
+    </div>
+</div>

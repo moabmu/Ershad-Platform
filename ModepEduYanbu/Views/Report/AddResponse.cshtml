@@ -1,0 +1,27 @@
+﻿@model AddResponseViewModel
+@{
+    ViewData["Title"] = "إضافة رد لتقرير";
+}
+
+<h4>إضافة رد على التقرير رقم @Model.ReportNo</h4>
+<form asp-controller="Report" asp-action="AddResponse" method="post">
+    <div class="form-horizontal">
+        <input type="hidden" asp-for="ReportNo" />
+        <div class="form-group">
+            <label asp-for="Content" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <textarea cols="60" rows="6" asp-for="Content" class="form-control"></textarea>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="إضافة الرد" class="btn btn-success" />
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

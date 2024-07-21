@@ -1,0 +1,151 @@
+﻿@model HomeIndexViewModel
+@{
+    ViewData["Title"] = "الرئيسية";
+}
+
+@{
+    var userAgentString = Context.Request.Headers["User-Agent"].ToString();
+    var isPlatformMobile = userAgentString.Contains("Android") || userAgentString.Contains("iPhone");
+}
+
+@if (!isPlatformMobile)
+{
+    <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="4000">
+        <ol class="carousel-indicators">
+            <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+            <li data-target="#myCarousel" data-slide-to="1"></li>
+        </ol>
+        <div class="carousel-inner" role="listbox">
+            <div class="item active">
+                <img src="~/images/banner1.gif" alt="ASP.NET" class="img-responsive" />
+                <div class="carousel-caption" role="option">
+                    <p>
+                    </p>
+                </div>
+            </div>
+            <div class="item">
+                <img src="~/images/banner2.png" alt="Visual Studio" class="img-responsive" />
+                <div class="carousel-caption" role="option">
+                    <p>
+                        <a class="btn btn-default" asp-controller="Account" asp-action="Login">
+                            تسجيل الدخول
+                        </a>
+                        <a class="btn btn-default" asp-controller="Account" asp-action="NewUser">
+                            مستخدم جديد
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+            <span class="sr-only">السابق</span>
+        </a>
+        <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+            <span class="sr-only">التالي</span>
+        </a>
+    </div>
+}
+
+@* Best reports in the system *@
+@if (Model.TopReports != null && Model.TopReports.Count() > 0)
+{
+    <h3>أفضل التقارير الإرشادية</h3>
+    <div>
+        <table class="table table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>
+                        رقم التقرير
+                    </th>
+                    <th>
+                        اسم البرنامج
+                    </th>
+                    <th>
+                        المدرسة
+                    </th>
+                    <th>
+                        المرسل
+                    </th>
+                    <th>
+                        تقييم القسم
+                    </th>
+                    <th>
+                        تقييم الزوار
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.TopReports)
+                {
+                    <tr>
+                        <td>
+                            <a asp-action="Show" asp-controller="Report" asp-route-reportno="@item.ReportNo">
+                                @Html.DisplayFor(modelItem => item.ReportNo)
+                            </a>
+                        </td>
+                        <td>
+                            <a asp-action="Show" asp-controller="Report" asp-route-reportno="@item.ReportNo">
+                                @Html.DisplayFor(modelItem => item.EduProgramName)
+                            </a>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.SchoolName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.OwnerFullName)
+                        </td>
+                        <td>
+                            @if (item.IsEvaluated)
+                            {
+                                <span class="text-success" style="font-weight: bold;">@item.Evaluation من 10</span>
+                                if (item.EvaluationDate.HasValue)
+                                {
+                                    <span class="text-muted small">تم التقييم بتاريخ @item.EvaluationDate.Value.ToShortDateString()</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted small">لم يتم التقييم حالياً</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.VisitorRatingCount < 1)
+                            {
+                                <span class="text-muted small">لا توجد تفاعلات للزوار حالياً</span>
+                            }
+                            else
+                            {
+                                @await Html.PartialAsync("_PartialStarsRatingWithCountLink", new ModepEduYanbu.ViewModels.ViewModelsForPartialViews.PartialStarsRatingWithCountLinkViewModel(
+item.VisitorOverallRating,
+item.VisitorRatingCount,
+nameof(ModepEduYanbu.Controllers.ReportController.Show),
+nameof(ModepEduYanbu.Controllers.ReportController).Replace("Controller", string.Empty),
+new Dictionary<string, string>
+{
+   {"ReportNo", item.ReportNo }
+}
+))
+
+                            }
+                        </td>
+                        <td></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<h3>عن المنصة</h3>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="embed-responsive embed-responsive-16by9">
+                <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/_HZX7-PQqA8" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+</div>

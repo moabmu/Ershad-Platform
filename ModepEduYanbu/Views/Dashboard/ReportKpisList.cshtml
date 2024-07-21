@@ -1,0 +1,82 @@
+﻿@addTagHelper *, Sakura.AspNetCore.Mvc.PagedList
+@using Microsoft.EntityFrameworkCore
+@model Sakura.AspNetCore.IPagedList<ReportKpisListItemViewModel>
+@{
+    var pageTitle = "مؤشرات أداء ";
+    ViewData["Title"] = $"{pageTitle}{ViewData["TargetTitle"]}";
+}
+<h2>@ViewData["Title"]</h2>
+<div style="margin-top: 10px;">
+    <form asp-action="ReportKpisList" method="get">
+        <input type="hidden" name="target" value="@ViewData["Target"]" />
+        <div class="form-actions no-color">
+            <p>
+                ابحث بالاسم: <input type="text"
+                                    class="form-control input-sm"
+                                    name="SearchString"
+                                    value="@ViewData["SearchString"]"
+                                    style="display:inline" />
+                <input type="submit" value="بحث" class="btn btn-default" /> |
+                <a asp-action="Index">العودة للقائمة الكاملة</a>
+            </p>
+        </div>
+        <div class="form-group">
+            <label class="control-label small">ترتيب النتائج: </label>
+            <select class="selectpicker"
+                    name="order"
+                    asp-items="@ViewBag.OrderList"
+                    title="ترتيب مؤشرات الأداء حسب..."></select>
+        </div>
+    </form>
+</div>
+@if (Model == null || Model.TotalCount < 1)
+{
+    <span class="text-muted small">لا توجد نتائج.</span>
+}
+else
+{
+    <div>
+        <span>عدد النتائج: @Model.TotalCount</span>
+    </div>
+    <table class="table table-hover table-striped">
+        <thead>
+            <tr>
+                <th>
+                    الاسم
+                </th>
+                <th>
+                    مؤشر الأداء
+                </th>
+                <th>
+                    تاريخ آخر تحديث للمؤشر
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.OwnerName)
+                    </td>
+                    <td>
+                        @await Html.PartialAsync("_PartialEvaluationLabel", new ModepEduYanbu.ViewModels.ViewModelsForPartialViews.PartialEvaluationLabelViewModel
+                        {
+                           EvaluationValue = item.KpiNumerator / item.KpiDenominator,
+                           EvaluationBase = 10,
+                           DecimalsToRound = 2,
+                           DisplayGradeColor = true,
+                           DisplayGradeTitle = false,
+                           Suffix = " من 10"
+                        })
+                    </td>
+                    <td>
+                        @item.KpiUpdatingDate.DateTime.ToString()
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <pager source="Model" />
+    @await Html.PartialAsync("_PartialGradesScale")
+}

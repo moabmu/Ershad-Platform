@@ -1,0 +1,24 @@
+﻿@model SelectEducationalYearViewModel
+@{
+    ViewData["Title"] = "تحديد العام الدراسي";
+}
+
+<h2>@ViewData["Title"].</h2>
+
+<form asp-action="SelectEducationalYear" method="post" class="form">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <span>اختر العام الدراسي للإرشيف:</span>
+            </div>
+            <div class="form-group">
+                <select asp-for="SelectedYear" asp-items="Model.Years" class="selectpicker"></select>
+            </div>
+            <button type="submit" class="btn btn-default">اختيار</button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

@@ -1,0 +1,6 @@
+﻿@model ModepEduYanbu.ViewModels.ViewModelsForPartialViews.PartialStarsRatingWithCountLinkViewModel
+@await Html.PartialAsync("_PartialStarsRating", Model.OverallRating)
+&nbsp;
+<div>
+    <a asp-action="@Model.TargetAction" asp-controller="@Model.TargetController" asp-all-route-data="Model.Parameters" style="display: flex;">@($"({Model.RatingCount})")</a>
+</div>

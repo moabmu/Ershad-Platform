@@ -1,0 +1,56 @@
+﻿@model AddSchoolViewModel
+@{
+    ViewData["Title"] = "إضافة مدرسة للنظام";
+}
+
+@if (ViewBag.UserMessage != null)
+{
+    <div class="alert alert-success">ViewBag.UserMessage</div>
+}
+<h2>@ViewData["Title"]</h2>
+<form asp-controller="Admin" asp-action="AddSchool" method="post" class="form-horizontal">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="Name" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="MinistryNo" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="MinistryNo" class="form-control" />
+            <span asp-validation-for="MinistryNo" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="SelectedLevel" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <select class="selectpicker" asp-for="SelectedLevel" asp-items="Model.Levels"></select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="SelectedType" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <select class="selectpicker" asp-for="SelectedType" asp-items="Model.Types"></select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="PrincipleIdNo" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="PrincipleIdNo" class="form-control" />
+            <span asp-validation-for="PrincipleIdNo" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="City" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="City" class="form-control" />
+            <span asp-validation-for="City" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="@ViewData["Title"]" class="btn btn-success" />
+    </div>
+</form>

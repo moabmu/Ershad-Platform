@@ -1,0 +1,366 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using ModepEduYanbu.Data
+@model DashboardViewModel
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject ISchoolRepo schoolRepo
+@inject IReportsRepo reportRepo
+@inject ModepEduYanbu.DAL.DbContexts.ApplicationDbContext context
+@{
+    ViewData["Title"] = "لوحة المستخدم";
+}
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var role = (await UserManager.GetRolesAsync(user))[0];
+    var userIsSchoolEmp = await user.IsSchoolEmployee(UserManager);
+    var userHasManySchools = user.HasManySchools(schoolRepo);
+
+    var mentorRoleName = Templates.Roles[4].Name;
+    var principleRoleName = Templates.Roles[3].Name;
+}
+<h2>مرحبا @(user.FullName.GetFirstNameAr())! </h2>
+@if (user.GetCurrentSchool(schoolRepo) != null)
+{
+    <div>
+        المدرسة: <span style="font-weight: bold;">@(user.GetCurrentSchoolName(schoolRepo)). </span>
+        @if (userIsSchoolEmp && userHasManySchools)
+        {
+            <a asp-action="SelectSchool" class="btn-bracketed">تغيير المدرسة</a>
+        }
+    </div>
+}
+
+<h3>البرامج الارشادية الحالية</h3>
+@if (Model.EduPrograms == null || Model.EduPrograms.Count < 1)
+{
+    string noCurrentEduPrograms = (role == "mentor" || role == "principle") ? "لا توجد برامج إرشادية مخصصة لكم حالياً، في حال كانت هذه القائمة فارغة فذلك يعني إرسالكم لجميع التقارير المطلوبة أو انتهاء الوقت المحدد للإرسال." : "لا توجد برامج إرشادية حالياً.";
+    <span class="text-muted small">@noCurrentEduPrograms</span>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    اسم البرنامج
+                </th>
+                <th>
+                    تاريخ بدء التنفيذ
+                </th>
+                <th>
+                    تاريخ الانتهاء
+                </th>
+                <th>
+                    آخر موعد لإرسال التقرير
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.EduPrograms)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @item.BeginDate.ToString("dd/MM/yyyy")
+                    </td>
+                    <td>
+                        @item.EndDate.ToString("dd/MM/yyyy")
+                    </td>
+                    <td>
+                        @item.ReportDeadline.ToString("dd/MM/yyyy")
+                    </td>
+                    <td>
+                        @if (item.DescriptionFile != null)
+                        {
+                            <a target="_blank" href="@(item.DescriptionFile.Uri)">خطة البرنامج</a>
+                        }
+                        @if (role == "mentor")
+                        {
+                            @("|")
+                            <a asp-controller="Report" asp-action="Add" asp-route-programid="@item.EduProgramId">إضافة تقرير</a>
+                        }
+                        else if (role == "sysowner" || role == "admin")
+                        {
+                            @("|")
+                            <a asp-controller="EduProgram" asp-action="Edit" asp-route-no="@item.EduProgramId">تعديل</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<br />
+@if (!(role == "mentor" || role == "principle"))
+{
+    <h3>مؤشرات الأداء</h3>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 text-center">
+
+                <style>
+                    .sliderwrap {
+                        margin-top: 0px;
+                        width: 300px;
+                        align-self: center;
+                    }
+
+                    #slider.e-control.e-slider .e-handle {
+                        background-color: #4B4B4B;
+                    }
+
+                    .e-control-wrapper.e-slider-container.e-horizontal .e-slider-track {
+                        background: -webkit-linear-gradient(left, #ea501a 0, #ea501a 20%, #f79c02 40%, #e5ce20 60%, #a1cb43 80%, #82b944 100%);
+                        background: linear-gradient(left, #ea501a 0, #ea501a 20%, #f79c02 40%, #e5ce20 60%, #a1cb43 80%, #82b944 100%);
+                        background: -moz-linear-gradient(left, #ea501a 0, #ea501a 20%, #f79c02 40%, #e5ce20 60%, #a1cb43 80%, #82b944 100%);
+                    }
+
+                    .e-limit-bar.e-limits {
+                        background-color: transparent !important;
+                    }
+
+                    .e-control-wrapper.e-slider-container.e-horizontal .e-range {
+                        height: 0px !important;
+                    }
+
+                    #slider.e-control.e-slider .e-slider-track {
+                        height: 8px;
+                        top: calc(50% - 4px);
+                        border-radius: 5px;
+                    }
+                </style>
+                @{ var font = new { fontFamily = "Roboto", size = "0px", fontWeight = "Regular" };
+                    var minor = new Syncfusion.EJ2.CircularGauge.CircularGaugeTick { Height = 0, Width = 0, Color = "transparent" };
+                    var major = new Syncfusion.EJ2.CircularGauge.CircularGaugeTick { Height = 0, Width = 0, Color = "transparent" };
+                    var border = new Syncfusion.EJ2.CircularGauge.CircularGaugeBorder { Color = "grey", Width = 2 };
+                }
+                <div class="control-section" style="border-right:0px;">
+                    <span style="font-weight: bold;">أداء البرامج الإرشادية</span>
+                    <br />
+                    <a asp-action="ReportKpisList" asp-route-target="eduprograms">قائمة الأداء للبرامج</a>
+                    <div id="range-container">
+                        <ejs-circulargauge id="range-container" load="gaugeload" height="200px"
+                                           margin="new Syncfusion.EJ2.CircularGauge.CircularGaugeMargin { Top = -20, Bottom = -30 }">
+                            <e-circulargauge-axes>
+                                <e-circulargauge-axis startAngle="200"
+                                                      endAngle="160"
+                                                      minimum="0"
+                                                      maximum="100"
+                                                      radius="80%"
+                                                      majorTicks="major"
+                                                      minorTicks="minor">
+                                    <e-axis-linestyle width="0"></e-axis-linestyle>
+                                    <e-axis-labelstyle position="Inside" useRangeColor="true" font="font"></e-axis-labelstyle>
+                                    <e-axis-annotations>
+                                        <e-axis-annotation content="<div id=pointervalue style=font-size:25px;width=120px;text-align:center>@((decimal)ViewBag.DepartmentKpi)/100</div>" angle="0" zIndex="1.0" radius="0%"></e-axis-annotation>
+                                        <e-axis-annotation content="<div id=slider style=height:70px;width:250px;></div>" angle="0" zIndex="1.0" radius="-100%"></e-axis-annotation>
+                                    </e-axis-annotations>
+                                </e-circulargauge-axis>
+                            </e-circulargauge-axes>
+                        </ejs-circulargauge>
+                    </div>
+                    @*<span>قائمة الأداء للبرامج الإرشادية</span>*@
+                </div>
+                <script>
+
+                var gauge;
+                function annotationRender(id, sliderValue) {
+                    var first = new ej.inputs.Slider({
+                        // Set the value for slider
+                        min: 0, max: 100,
+                        type: 'MinRange',
+                        limits: { enabled: true, minStart: 0, minEnd: 100 },
+                        value: sliderValue,
+                        change: (args) => {
+                            sliderValue = args.value;
+                            if (!isNaN(sliderValue)) {
+                                gauge['isProtectedOnChange'] = true;
+                                if (sliderValue >= 0 && sliderValue < 20) {
+                                    gauge.axes[0].pointers[0].color = '#ea501a';
+                                } else if (sliderValue >= 20 && sliderValue < 40) {
+                                    gauge.axes[0].pointers[0].color = '#f79c02';
+                                } else if (sliderValue >= 40 && sliderValue < 60) {
+                                    gauge.axes[0].pointers[0].color = '#e5ce20';
+                                } else if (sliderValue >= 60 && sliderValue < 80) {
+                                    gauge.axes[0].pointers[0].color = '#a1cb43';
+                                } else if (sliderValue >= 80 && sliderValue < 100) {
+                                    gauge.axes[0].pointers[0].color = '#82b944';
+                                }
+                                gauge.setPointerValue(0, 0, sliderValue);
+                                if (document.getElementById('pointervalue')) {
+                                    document.getElementById('pointervalue').innerHTML = gauge.axes[0].pointers[0].value.toString() + '/100';
+                                }
+                            }
+                        }
+                    });
+                    first.appendTo('#' + id);
+                }
+
+                window.gaugeload = function (args) {
+                    var theme = location.hash.split('/')[1];
+                    theme = theme ? theme : 'Material';
+                    gauge = args.gauge;
+                    args.gauge.theme = (theme.charAt(0).toUpperCase() + theme.slice(1));
+                    var axis = args.gauge.axes[0];
+                    axis.pointers = [{
+                        roundedCornerRadius: 20,
+                        value: @((decimal)ViewBag.DepartmentKpi),
+                        type: 'RangeBar',
+                        radius: '90%',
+                        color: '#82b944',
+                        border: {
+                            color: 'grey',
+                            width: 0
+                        },
+                        animation: {
+                            enable: false
+                        },
+                        pointerWidth: 20
+
+                    }];
+                    axis.ranges = [
+                        {
+                            start: 0, end: 100,
+                            radius: '90%',
+                            startWidth: 20, endWidth: 20,
+                            color: '#E0E0E0',
+                            roundedCornerRadius: 20
+                        }
+                    ];
+                }
+                </script>
+            </div>
+            <div class="col-md-3 text-center" style="margin-top: 15px;">
+                <p style="font-weight: bold;">أفضل المدارس بالأداء</p>
+                @foreach (var s in Model.TopSchools)
+                {
+                    <p>@s.Owner.Name <span class="text-success" style="font-weight: bold;">@Math.Round(s.KpiNumerator / s.KpiDenominator * 10, 2) من 10</span></p>
+                }
+                <a asp-action="ReportKpisList" asp-route-target="schools">قائمة الأداء للمدارس</a>
+            </div>
+            <div class="col-md-3 text-center" style="margin-top: 15px;">
+                <p style="font-weight: bold;">أفضل المرشدين بالأداء</p>
+                @foreach (var m in Model.TopMentors)
+                {
+                    <p>@m.Owner.FullName (المدرسة: @((m.Owner.UserSchools.Count > 0) ? m.Owner.UserSchools[0].School.Name : "\"بدون مدرسة حالياً\"")) <span class="text-success" style="font-weight: bold;">@Math.Round(m.KpiNumerator / m.KpiDenominator * 10, 2) من 10</span></p>
+                }
+                <a asp-action="ReportKpisList" asp-route-target="mentors">قائمة الأداء للمرشدين</a>
+            </div>
+            <div class="col-md-3 text-center" style="margin-top: 15px;">
+                <p style="font-weight: bold;">إحصائيات</p>
+                <p>إجمالي تفاعلات الزوار: @((int)ViewBag.VisitorsCount)</p>
+                <p>البرامج الإرشادية الحالية: @((int)ViewBag.CurrentEduProgramsCount)</p>
+                <p>البرامج الإرشادية المنتهية: @((int)ViewBag.FinishedEduProgramsCount)</p>
+                <p>عدد التقارير غير المقيمة: @((int)ViewBag.NonEvaluatedReports)</p>
+                <p>عدد التقارير المقيمة: @((int)ViewBag.EvaluatedReports)</p>
+                @if (role == "admin" || role == "sysowner")
+                {
+                    <a asp-action="RatedAndUnratedEduProgramsList">قائمة البرامج المقيمة وغير المقيمة</a>
+                }
+            </div>
+        </div>
+    </div>
+}
+<br />
+<h3>التقارير المرسلة</h3>
+@if (!(role == "mentor" || role == "principle"))
+{
+    <div>
+        الإرشيف الحالي: <span style="font-weight: bold;">@(ViewBag.CurrentArchive)</span>
+        @if ((bool)(ViewBag.ShowChangeArchiveButton))
+        {
+            <a asp-action="SelectEducationalYear" class="btn-bracketed">تغيير</a>
+        }
+    </div>
+    <div style="margin-top: 10px;">
+        <form asp-action="Index" method="get">
+            <div class="form-actions no-color">
+                <p>
+                    ابحث عن تقرير: <input type="text"
+                                          class="form-control input-sm"
+                                          name="SearchString"
+                                          value="@ViewData["searchString"]"
+                                          style="display:inline" />
+                    <input type="submit" value="بحث" class="btn btn-default" /> |
+                    <a asp-action="Index">العودة للقائمة الكاملة</a>
+                </p>
+            </div>
+            <div class="form-group">
+                <label class="control-label small">عوامل التصفية: </label>
+                <br />
+                <select class="selectpicker"
+                        name="SchoolMinistryNos"
+                        asp-items="@ViewBag.SchoolsList"
+                        data-live-search="true"
+                        title="تصفية حسب المدارس..."
+                        multiple></select>
+                <select class="selectpicker"
+                        name="EduProgramIds"
+                        asp-items="@ViewBag.EduProgramsList"
+                        data-live-search="true"
+                        title="تصفية حسب البرامج الإرشادية..."
+                        multiple>
+                </select>
+                <select class="selectpicker"
+                        name="ShowRatedOrUnratedReports"
+                        asp-items="@ViewBag.ShowRatedOrUnratedReportsList"
+                        title="تصفية حسب التقييم/عدم التقييم..."></select>
+            </div>
+        </form>
+    </div>
+}
+@await Html.PartialAsync("_PartialReportsViewer", Model.PagedReportsViewer)
+@await Html.PartialAsync("_PartialGradesScale")
+<br />
+<h3>الخيارات</h3>
+<div>
+    <ul>
+        @if (role == "mentor" || role == "principle")
+        {
+            <li>
+                <a asp-controller="Home"
+                   asp-action="Contact">التواصل مع قسم التوجيه والإرشاد</a>
+            </li>
+        }
+        <li>
+            <a asp-action="Index"
+               asp-controller="Manage">إدارة الحساب</a>
+        </li>
+        @if (role != "mentor")
+        {
+            <li>
+                <a asp-controller="Dashboard"
+                   asp-action="AddPerson">إضافة شخص للنظام</a>
+            </li>
+        }
+        @if (!(role == "mentor" || role == "principle"))
+        {
+            <li>
+                <a asp-controller="EduProgram"
+                   asp-action="Add">إضافة برنامج إرشادي جديد</a>
+            </li>
+        }
+        @if (role == "admin" || role == "sysowner")
+        {
+            <li>
+                <a asp-controller="Admin"
+                   asp-action="AddSchool">إضافة مدرسة إلى النظام</a>
+            </li>
+            <li>
+                <a asp-controller="Admin"
+                   asp-action="ChangeUserSchools">تحويل المدارس لمستخدمي النظام</a>
+            </li>
+        }
+        @if (role == "sysowner")
+        {
+            <li>
+                <a asp-action="UploadSchoolsPrinciplesData"
+                   asp-controller="Admin">إضافة المدارس والأشخاص للنظام من تقرير إكسل</a>
+            </li>
+        }
+    </ul>
+</div>
+

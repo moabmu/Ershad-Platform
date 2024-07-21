@@ -1,0 +1,24 @@
+{
+  "name": "asp.net",
+  "private": true,
+  "dependencies": {
+    "bootstrap": "3.3.7",
+    "jquery": "3.3.1",
+    "jquery-validation": "1.19.0",
+    "jquery-validation-unobtrusive": "v3.2.11",
+    "bootstrap-rtl": "v3.4.0",
+    "bootstrap-select": "v1.12.4",
+    "angular": "angularjs#v1.6.7",
+    "jquery-ajax-unobtrusive": "v3.2.4",
+    "angular-file-upload": "v2.3.4",
+    "blueimp-file-upload": "jquery-file-upload#v9.20.0",
+    "bootswatch": "v3.3.7",
+    "printThis": "v1.12.2"
+  },
+  "resolutions": {
+    "bootswatch": "v4.0.0",
+    "jquery": "3.3.1",
+    "jquery-validation": "1.19.0",
+    "jquery-validation-unobtrusive": "v3.2.11"
+  }
+}

@@ -1,0 +1,532 @@
+﻿@using ModepEduYanbu.Data
+@model ShowReportViewModel
+@inject UserManager<ApplicationUser> userManager
+@inject SignInManager<ApplicationUser> signInManager
+@inject IReportsRepo reportsRepo
+@inject ISchoolRepo schoolsRepo
+@{
+    ViewData["Title"] = "معاينة تقرير";
+}
+@section HeadScripts{
+    <link rel='stylesheet prefetch' href='https://netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css'>
+    <style>
+        /* Wrapper */
+        .icon-button {
+            background-color: #e8e8e8;
+            border-radius: 3.6rem;
+            cursor: pointer;
+            display: inline-block;
+            font-size: 2.0rem;
+            height: 3.6rem;
+            line-height: 3.6rem;
+            margin: 0 3px;
+            position: relative;
+            text-align: center;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            width: 3.6rem;
+        }
+
+            /* Circle */
+            .icon-button span {
+                border-radius: 0;
+                display: block;
+                height: 0;
+                left: 50%;
+                margin: 0;
+                position: absolute;
+                top: 50%;
+                -webkit-transition: all 0.3s;
+                -moz-transition: all 0.3s;
+                -o-transition: all 0.3s;
+                transition: all 0.3s;
+                width: 0;
+            }
+
+            .icon-button:hover span {
+                width: 3.6rem;
+                height: 3.6rem;
+                border-radius: 3.6rem;
+                margin: -1.8rem;
+            }
+
+        .twitter span {
+            background-color: #4099ff;
+        }
+
+        .facebook span {
+            background-color: #3B5998;
+        }
+
+        .google-plus span {
+            background-color: #db5a3c;
+        }
+
+        .print span {
+            background-color: #ff6a00;
+        }
+
+        /* Icons */
+        .icon-button i {
+            background: none;
+            color: white;
+            height: 3.6rem;
+            left: 0;
+            line-height: 3.6rem;
+            position: absolute;
+            top: 0;
+            -webkit-transition: all 0.3s;
+            -moz-transition: all 0.3s;
+            -o-transition: all 0.3s;
+            transition: all 0.3s;
+            width: 3.6rem;
+            z-index: 10;
+        }
+
+        .icon-button .icon-twitter {
+            color: #4099ff;
+        }
+
+        .icon-button .icon-facebook {
+            color: #3B5998;
+        }
+
+        .icon-button .icon-google-plus {
+            color: #db5a3c;
+        }
+
+        .icon-button .icon-print {
+            color: #ff6a00;
+        }
+
+        .icon-button:hover .icon-twitter,
+        .icon-button:hover .icon-facebook,
+        .icon-button:hover .icon-google-plus,
+        .icon-button:hover .icon-print {
+            color: white;
+        }
+    </style>
+}
+
+@section scripts{
+    <script src="~/lib/printThis/printThis.min.js"></script>
+}
+
+@{
+    int divMargin = 4;
+    string divFirstColClass = "col-md-2 col-sm-2";
+    string divSecondColClass = "col-md-10 col-sm-10";
+    string labelStyle = "font-weight: normal;";
+
+    var report = reportsRepo.GetByReportNo(Model.ReportNo, includeResponses: true, includeActivities: true);
+
+    @* TODO: Fix: (GetCurrentSchool == null) is not enough to know that user is EduEmployee. *@
+    var userIsEduEmpOrHisSchoolOwnsReport = signInManager.IsSignedIn(User) && ((await userManager.GetUserAsync(User)).GetCurrentSchool(schoolsRepo) == null || (await userManager.GetUserAsync(User)).GetCurrentSchool(schoolsRepo).MinistryNo == report.SchoolMinistryNo);
+}
+
+<div id="ReportDiv">
+    @if (!String.IsNullOrEmpty(ViewData["StatusMessage"].ToString()))
+    {
+        <div class="alert alert-success" style="margin-top:10px;">
+            @ViewData["StatusMessage"].ToString()
+        </div>
+    }
+    <div id="ReportData">
+        <h2>معاينة تقرير</h2>
+        <div class="row">
+            <div class="@(divFirstColClass)">
+                <label asp-for="ReportNo" style="@(labelStyle)"></label>
+            </div>
+            <div class="@(divSecondColClass)">
+                <span class="text-info" style="font-weight: bold;font-size: large;">@Model.ReportNo</span>
+            </div>
+        </div>
+        <div class="row" style="margin-top: @(divMargin)px;">
+            <div class="@(divFirstColClass)">
+                <label asp-for="SentDateTime" style="@(labelStyle)"></label>
+            </div>
+            <div class="@(divSecondColClass)">
+                <span class="text-info" style="font-weight: bold;">@DateTime.Parse(Model.SentDateTime).ToShortDateString()</span>
+            </div>
+        </div>
+        <div class="row" style="margin-top: @(divMargin)px;">
+            <div class="@(divFirstColClass)">
+                <label asp-for="EduProgramName" style="@(labelStyle)"></label>
+            </div>
+            <div class="@(divSecondColClass)">
+                <span class="text-info" style="font-weight: bold;">@Model.EduProgramName</span>
+            </div>
+        </div>
+        <div class="row" style="margin-top: @(divMargin)px;">
+            <div class="@(divFirstColClass)">
+                <label asp-for="SchoolName" style="@(labelStyle)"></label>
+            </div>
+            <div class="@(divSecondColClass)">
+                <span class="text-info" style="font-weight: bold;">@Model.SchoolName</span>
+            </div>
+        </div>
+        <div class="row" style="margin-top: @(divMargin)px;">
+            <div class="@(divFirstColClass)">
+                <label asp-for="OwnerFullName" style="@(labelStyle)"></label>
+            </div>
+            <div class="@(divSecondColClass)">
+                <span class="text-info" style="font-weight: bold;">@Model.OwnerFullName</span>
+            </div>
+        </div>
+        <div class="row" style="margin-top: @(divMargin)px;">
+            <div class="@(divFirstColClass)">
+                <label asp-for="Evaluation" style="@(labelStyle)"></label>
+            </div>
+            <div class="@(divSecondColClass)">
+                @await Html.PartialAsync("_PartialEvaluationLabel", new ModepEduYanbu.ViewModels.ViewModelsForPartialViews.PartialEvaluationLabelViewModel
+                {
+                   EvaluationValue = (report.IsEvaluated) ? (decimal?)(Model.Evaluation / 10) : null,
+                   EvaluationBase = 10,
+                   DecimalsToRound = 2,
+                   DisplayGradeColor = true,
+                   DisplayGradeTitle = true,
+                   Suffix = " من 10",
+                   Message = (report.EvaluationDate.HasValue) ? $"التقييم بتاريخ {Model.EvaluationDate.ToShortDateString()}{((userIsEduEmpOrHisSchoolOwnsReport && !String.IsNullOrEmpty(Model.EvaluatorFullName)) ? ($" بواسطة {@Model.EvaluatorFullName}") : "")}" : null
+                })
+            </div>
+        </div>
+
+        <br />
+        <h3>تفاصيل التقرير</h3>
+        <div class="row" style="margin-top: @(divMargin)px;">
+            <div class="@(divFirstColClass)">
+                <label asp-for="TargetedSlice" style="@(labelStyle)"></label>
+            </div>
+            <div class="@(divSecondColClass)">
+                <span class="text-info" style="font-weight: bold;">@Model.TargetedSlice</span>
+            </div>
+        </div>
+        <div class="row" style="margin-top: @(divMargin)px;">
+            <div class="@(divFirstColClass)">
+                <label asp-for="TargetedCount" style="@(labelStyle)"></label>
+            </div>
+            <div class="@(divSecondColClass)">
+                <span class="text-info" style="font-weight: bold;">@Model.TargetedCount</span>
+            </div>
+        </div>
+        <div class="row" style="margin-top: @(divMargin)px;">
+            <div class="@(divFirstColClass)">
+                <label asp-for="Field" style="@(labelStyle)"></label>
+            </div>
+            <div class="@(divSecondColClass)">
+                <span class="text-info" style="font-weight: bold;">@Model.Field</span>
+            </div>
+        </div>
+        <div class="row" style="margin-top: @(divMargin)px;">
+            <div class="@(divFirstColClass)">
+                <label asp-for="ExecutionDate" style="@(labelStyle)"></label>
+            </div>
+            <div class="@(divSecondColClass)">
+                <span class="text-info" style="font-weight: bold;">@Model.ExecutionDate.ToShortDateString()</span>
+            </div>
+        </div>
+        <div class="row" style="margin-top: @(divMargin)px;">
+            <div class="@(divFirstColClass)">
+                <label asp-for="ExecutionPeriod" style="@(labelStyle)"></label>
+            </div>
+            <div class="@(divSecondColClass)">
+                <span class="text-info" style="font-weight: bold;">@Model.ExecutionPeriod</span>
+            </div>
+        </div>
+        <div class="row" style="margin-top: @(divMargin)px;">
+            <div class="@(divFirstColClass)">
+                <label asp-for="ExecutionData" style="@(labelStyle)"></label>
+            </div>
+            <div class="@(divSecondColClass)">
+                <p class="text-info" style="font-weight: bold;white-space:pre;">@Model.ExecutionData</p>
+            </div>
+        </div>
+        <div class="row" style="margin-top: @(divMargin)px;">
+            <div class="@(divFirstColClass)">
+                <label asp-for="ParticipantsRatio" style="@(labelStyle)"></label>
+            </div>
+            <div class="@(divSecondColClass)">
+                <span class="text-info" style="font-weight: bold;">@Model.ParticipantsRatio</span>
+            </div>
+        </div>
+        <div class="row" style="margin-top: @(divMargin)px;">
+            <div class="@(divFirstColClass)">
+                <label asp-for="ChallengesSolus" style="@(labelStyle)"></label>
+            </div>
+            <div class="@(divSecondColClass)">
+                <span class="text-info" style="font-weight: bold;">@Model.ChallengesSolus</span>
+            </div>
+        </div>
+        @if (!String.IsNullOrEmpty(Model.UploadsLink))
+        {
+            <div class="row" style="margin-top: @(divMargin)px;">
+                <div class="@(divFirstColClass)">
+                    <label asp-for="UploadsLink" style="@(labelStyle)"></label>
+                </div>
+                <div class="@(divSecondColClass)">
+                    <a href="@Model.UploadsLink" target="_blank">انقر هنا لمشاهدة شواهد التنفيذ</a>
+                </div>
+            </div>
+        }
+        <div class="row" style="margin-top: @(divMargin)px;">
+            <div class="@(divFirstColClass)">
+                <label asp-for="ProceduresCount" style="@(labelStyle)"></label>
+            </div>
+            <div class="@(divSecondColClass)">
+                <span class="text-info" style="font-weight: bold;">@Model.ProceduresCount</span>
+            </div>
+        </div>
+        @if (!String.IsNullOrEmpty(Model.ProceduresSuggestions))
+        {
+            <div class="row" style="margin-top: @(divMargin)px;">
+                <div class="@(divFirstColClass)">
+                    <label asp-for="ProceduresSuggestions" style="@(labelStyle)"></label>
+                </div>
+                <div class="@(divSecondColClass)">
+                    <span class="text-info" style="font-weight: bold;">@Model.ProceduresSuggestions</span>
+                </div>
+            </div>
+        }
+    </div>
+    <div id="ShareDiv" style="display:flex;">
+        @*<div>
+                <button class="btn btn-sm btn-warning" onclick="$('#ReportData').printThis();">
+                    <i class="glyphicon glyphicon-print" aria-hidden="true"></i> طباعة التقرير
+                </button>
+            </div>*@
+        <div>
+            @{ var urlToShare = Url.Action("Show", "Report", new { reportNo = Model.ReportNo }, Context.Request.Scheme);}
+            <a class="icon-button print" onclick="$('#ReportData').printThis();"><i class="icon-print"></i><span></span></a>
+            <a target="_blank" href="https://twitter.com/share?url=@(urlToShare)&amp;text=مشاركة%20تقرير%20إرشادي&amp;hashtags=إرشاد_ينبع_بنين" class="icon-button twitter"><i class="icon-twitter"></i><span></span></a>
+            <a target="_blank" href="http://www.facebook.com/sharer.php?u=@(urlToShare)" class="icon-button facebook"><i class="icon-facebook"></i><span></span></a>
+            <a rel="nofollow" target="_blank" href="https://plus.google.com/share?url=@(urlToShare)" class="icon-button google-plus"><i class="icon-google-plus"></i><span></span></a>
+        </div>
+    </div>
+
+    @{
+        var images = ViewData["Images"] as List<ReportUploadedFile>;
+        var videos = ViewData["Videos"] as List<ReportUploadedFile>;
+        var documents = ViewData["Documents"] as List<ReportUploadedFile>;
+        var userOwnsReport = signInManager.IsSignedIn(User) && (await userManager.GetUserAsync(User)).Id == report.OwnerId;
+    }
+
+    <div id="ReportAttachments">
+        <h3>شواهد التنفيذ</h3>
+        <div class="container-fluid" style="margin-top: @(divMargin)">
+
+            @* Images *@
+            <div class="row">
+                @{
+                    if (images != null && images.Count > 0)
+                    {
+                        foreach (var image in images)
+                        {
+
+                <div class="col-md-4">
+                    <a href="@image.Uri" target="_blank">
+                        <img src="@image.Uri" class="img-responsive img-thumbnail" />
+                    </a>
+                    @if (userOwnsReport)
+                    {
+                    <br />
+                    <a asp-controller="Report"
+                       asp-action="DeleteFile"
+                       asp-route-id="@image.ReportUploadedFileId"
+                       class="btn btn-danger btn-sm small"><span class="glyphicon glyphicon-remove"></span>حذف</a>
+                    }
+                </div>
+
+                        }
+                    }
+                }
+            </div>
+
+            @* Videos *@
+            <div class="row" style="margin-top: 10px;">
+                @{
+                    if (videos != null && videos.Count > 0)
+                    {
+                        foreach (var video in videos)
+                        {
+
+                <div class="col-md-6">
+                    <video class="img-responsive" controls="controls">
+                        <source src="@video.Uri" type="video/mp4" />
+                    </video>
+                    @if (userOwnsReport)
+                    {
+                    <br />
+                    <a asp-controller="Report"
+                       asp-action="DeleteFile"
+                       asp-route-id="@video.ReportUploadedFileId"
+                       class="btn btn-danger btn-sm small"><span class="glyphicon glyphicon-remove"></span> حذف</a>
+                    }
+                </div>
+                        }
+                    }
+                }
+            </div>
+
+            @* Documents *@
+            @if (documents != null && documents.Count > 0)
+            {
+                <div style="margin-top: 10px;">
+                    <span>المستندات المرفقة</span>
+                    <ul>
+                        @foreach (var doc in documents)
+                        {
+                        <li>
+                            <a href="@doc.Uri" target="_blank">@doc.FileTitle</a>
+                            @if (userOwnsReport)
+                            {
+                            <a asp-controller="Report"
+                               asp-action="DeleteFile"
+                               asp-route-id="@doc.ReportUploadedFileId"
+                               class="btn btn-bracketed btn-sm small"><span class="glyphicon glyphicon-remove"></span>حذف</a>
+                            }
+                        </li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (signInManager.IsSignedIn(this.User))
+    {
+        var user = await userManager.GetUserAsync(this.User);
+        var role = (await userManager.GetRolesAsync(user)).ToList()[0];
+
+        if (user != null && role != null && report != null)
+        {
+            @*principle*@
+            @if (role == Templates.Roles[3].Name
+&& user.GetCurrentSchool(schoolsRepo).MinistryNo == report.SchoolMinistryNo
+&& !report.IsSignedByPrinciple)
+            {
+                <div>
+                    <a asp-controller="Report"
+                       asp-action="SignByPrinciple"
+                       asp-route-no="@Model.ReportNo"
+                       class="btn btn-success">اعتماد مدير المدرسة للتقرير</a>
+                </div>
+            }
+
+            @*EduEmployee*@
+            @if (role != Templates.Roles[4].Name && role != Templates.Roles[3].Name)
+            {
+                <div>
+                    <a asp-controller="Report"
+                       asp-action="Evaluate"
+                       asp-route-no="@Model.ReportNo"
+                       class="btn btn-success">تقييم التقرير</a>
+                </div>
+            }
+        }
+    }
+
+    @if (userIsEduEmpOrHisSchoolOwnsReport)
+    {
+        <div id="ReportResponses">
+            <h3>الردود</h3>
+            @if (!(Model.Responses == null || Model.Responses.Count() < 1))
+            {
+                <br />
+                <div>
+                    @foreach (var response in Model.Responses)
+                    {
+
+                        <p>
+                            رد من: @response.OwnerFullName - @response.CreatedDate
+                            <br />
+                            <span class="text text-primary">@response.Content</span>
+                        </p>
+                    }
+                </div>
+            }
+            else
+            {
+                <div>
+                    لا توجد ردود حالياً.
+                </div>
+            }
+            <a asp-controller="Report"
+               asp-action="AddResponse"
+               asp-route-no="@Model.ReportNo"
+               class="btn btn-primary" style="margin-top: 3px;">إضافة رد</a>
+        </div>
+    }
+
+    <div id="VisitorActivities">
+        <h3>تفاعلات الزوار</h3>
+        @if (!(Model.Activities == null || Model.Activities.Count() < 1))
+        {
+            @* Show Rating Snipet*@
+            <div style="display: flex;">
+                <div>
+                    التقييم العام:
+                    <span style="font-size:25px; display: flex;">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            if (i <= Model.VisitorOverallRating)
+                            {
+                                <span style="font-family: FontAwesome;color:#ffd800">★</span>
+                            }
+                            else
+                            {
+                                <span style="font-family: FontAwesome;color:#BEC3C7">★</span>
+                            }
+                        }
+                    </span>
+                </div>
+                &nbsp;
+                <div>
+                    <span>@($"({Model.VisitorRatingCount})")</span>
+                </div>
+            </div>
+            <h4>آراء الزوار</h4>
+            <div>
+                @foreach (var activity in Model.Activities)
+                {
+
+                    <p>
+                        اسم الزائر: @activity.FullName
+                        <br />
+                        <span class="text text-primary">@activity.Content</span>
+                        <br />
+                        <span class="text-muted small">@activity.CreatedDate</span>
+                        <br />
+                        @if (signInManager.IsSignedIn(this.User))
+                        {
+                            var user = await userManager.GetUserAsync(this.User);
+                            var role = (await userManager.GetRolesAsync(user)).ToList()[0];
+
+                            if (user != null && "sysowner,eduemployee".Split(',').Any(x => x == role))
+                            {
+                                <a asp-controller="Report"
+                                   asp-action="DeleteActivity"
+                                   asp-route-id="@activity.ReportActivityId"
+                                   class="btn btn-success">حذف</a>
+                            }
+                        }
+                    </p>
+                }
+            </div>
+        }
+        else
+        {
+            <div>
+                لا توجد تفاعلات للزوار حالياً.
+            </div>
+        }
+        @if (!signInManager.IsSignedIn(User))
+        {
+            <a asp-controller="Report"
+               asp-action="AddActivity"
+               asp-route-no="@Model.ReportNo"
+               class="btn btn-primary" style="margin-top: 3px;">إضف رأيك بالتقرير</a>
+        }
+    </div>
+</div>

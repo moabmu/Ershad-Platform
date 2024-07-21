@@ -1,0 +1,27 @@
+﻿@model ModepEduYanbu.ViewModels.ViewModelsForPartialViews.PartialEvaluationLabelViewModel
+@if (!Model.EvaluationValue.HasValue)
+{
+    <span class="text-muted small">لم يتم التقييم حالياً</span>
+    return;
+}
+@{
+    var kpiResult = Model.EvaluationValue.Value;
+    var kpiDisplayResult = Math.Round(kpiResult * Model.EvaluationBase, Model.DecimalsToRound);
+
+    ModepEduYanbu.DAL.Models.KpiGradeForBootstrap targetGrade = null;
+    foreach (var grade in ModepEduYanbu.Data.Templates.KpiGradesForBootstrap)
+    {
+        if (grade.KpiValueMatchesThisKpiScore(kpiResult))
+        {
+            targetGrade = grade;
+            break;
+        }
+    }
+}
+@*i.e. "9.85 out of 10 Excellent"*@
+<span class="@((Model.DisplayGradeColor) ? targetGrade.CssColor : "")" style="font-weight: bold;">@($"{kpiDisplayResult}{Model.Suffix}{((Model.DisplayGradeTitle)?($" ({targetGrade.GradeTitle})"):"")}")</span>
+@*i.e. "Evaluation on Mon 28 Feb 2020"*@
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <span class="text-muted small">@Model.Message</span>
+}

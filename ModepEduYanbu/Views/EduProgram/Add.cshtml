@@ -1,0 +1,82 @@
+﻿@model ModepEduYanbu.Models.EduProgramViewModels.EduProgramViewModel
+@{
+    ViewData["Title"] = "إضافة برنامج إرشادي";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Add" enctype="multipart/form-data" method="post">
+    <div class="form-horizontal">
+        <h4>نموذج البرنامج الإرشادي</h4>
+        <hr />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        @if (ViewBag.UserMessage != null)
+        {
+            <div>@ViewBag.UserMessage</div>
+        }
+        <input asp-for="EduProgramId" type="hidden" />
+        <div class="form-group">
+            <label asp-for="Name" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+        </div>
+        @*<div class="form-group">
+            <label class="col-md-2 control-label"></label>
+            <div>
+                <select asp-for="SelectedSchool" asp-items="Model.Schools" multiple class="selectpicker"></select>
+            </div>
+        </div>*@
+        <div class="form-group">
+            <label asp-for="BeginDate" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="BeginDate" class="form-control" placeholder="مثال: 25/5/1440" />
+                <span asp-validation-for="BeginDate" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="EndDate" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="EndDate" class="form-control" placeholder="مثال: 25/5/1440" />
+                <span asp-validation-for="EndDate" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="ReportDeadline" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ReportDeadline" class="form-control" placeholder="مثال: 25/5/1440" />
+                <span asp-validation-for="ReportDeadline" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-2 control-label">المراحل الدراسية</label>
+            <div class="col-md-10">
+                <select asp-for="SelectedSchoolLevels" asp-items="Model.SchoolLevels" class="selectpicker" multiple></select>
+                <br />
+                <span class="text-muted small">لا يمكن تعديل المراحل الدراسية للبرنامج الإرشادي بعد إضافته</span>
+                <br />
+                <span asp-validation-for="SelectedSchoolLevels" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="DescriptionFile" class="control-label"></label>
+            <input asp-for="DescriptionFile" type="file" class="form-control" style="height:auto" />
+            <span asp-validation-for="DescriptionFile" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="إضافة البرنامج" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+</form>
+
+@*<div>
+    <a asp-action="Index">العودة للصفحة الرئيسية</a>
+</div>*@
+
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

@@ -1,0 +1,74 @@
+﻿@model ChangeUserSchoolsViewModel
+@{
+    ViewData["Title"] = "تحويل المدارس للمستخدمين";
+}
+
+<h2>تحويل المدارس للمستخدمين</h2>
+<form method="get" class="form" style="margin-top: 20px;">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <span>الرجاء اختيار المستخدم:</span>
+            </div>
+            <div class="form-group">
+                <select class="selectpicker"
+                        name="username"
+                        asp-items="@ViewBag.SchoolUsersList"
+                        data-live-search="true"
+                        title="المستخدم..."></select>
+                <input type="submit" value="اختيار" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+</form>
+@if (Model != null)
+{
+    <hr />
+    <span>
+        الاسم الكامل: <b>@Model.UserFullName</b>
+    </span>
+    <br />
+    <span>
+        الصلاحية: <b>@Model.RoleName</b>
+    </span>
+    <br />
+    <h4 style="margin-top: 10px;">المدارس الحالية للمستخدم:</h4>
+    @if (Model.UserSchools.Count() > 0)
+    {
+        <ul>
+            @foreach (var school in Model.UserSchools)
+            {
+
+                <li style="margin-top: 7px;">
+                    <b>@school.SchoolName</b> -
+                    <a asp-action="DeleteSchoolForUser" title="إزالة المستخدم من المدرسة" asp-route-username="@Model.UserIdNo" asp-route-schoolId="@school.SchoolId" class="label label-danger small">
+                        <span class="glyphicon glyphicon-remove"></span>
+                    </a>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <span class="text-muted small">لا توجد مدارس مرتبط بها المستخدم حالياً.</span>
+    }
+    <form asp-action="AddSchoolForUser" asp-controller="Admin" method="get" class="form" style="margin-top: 20px;">
+        <input type="hidden" name="username" value="@Model.UserIdNo" />
+        <div class="row">
+            <div class="col-md-8">
+                <div class="form-group">
+                    <span>إضافة المستخدم لمدرسة:</span>
+                </div>
+                <div class="form-group">
+                    <select class="selectpicker"
+                            name="schoolId"
+                            asp-items="@ViewBag.SchoolsList"
+                            data-live-search="true"
+                            title="اختر المدرسة الجديدة..."></select>
+                </div>
+                <input type="submit" value="إضافة المستخدم" class="btn btn-success" />
+            </div>
+        </div>
+    </form>
+}
+
